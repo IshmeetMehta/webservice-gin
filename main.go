@@ -101,5 +101,5 @@ func main() {
 	router.GET("/albums/:id", getAlbumsByID)
 	router.GET("/albums/getMySourceIP", getIP)
 	router.POST("/albums/", postAlbums)
-	router.Run("0.0.0.0:8080")
+	router.Run("0.0.0.0:" + port)
 }
