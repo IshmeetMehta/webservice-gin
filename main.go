@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -95,5 +96,5 @@ func main() {
 	router.GET("/albums/:id", getAlbumsByID)
 	router.GET("/albums/getMySourceIP", getIP)
 	router.POST("/albums/", postAlbums)
-	router.Run("localhost:8080")
+	router.Run("localhost:", os.Getenv("PORT"))
 }
