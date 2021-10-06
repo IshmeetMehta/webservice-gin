@@ -96,5 +96,5 @@ func main() {
 	router.GET("/albums/:id", getAlbumsByID)
 	router.GET("/albums/getMySourceIP", getIP)
 	router.POST("/albums/", postAlbums)
-	router.Run("localhost:", os.Getenv("PORT"))
+	router.Run("0.0.0.0:", os.Getenv("PORT"))
 }

@@ -14,7 +14,7 @@ COPY *.go ./
 
 RUN go build -o /webservice
 
-EXPOSE $PORT
+EXPOSE 8080
 
 CMD ["/webservice"]
 
