@@ -4,7 +4,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-
+	"log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,10 +91,15 @@ func getIP(c *gin.Context) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+			port = "8080"
+			log.Printf("defaulting to port %s", port)
+	}
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
 	router.GET("/albums/:id", getAlbumsByID)
 	router.GET("/albums/getMySourceIP", getIP)
 	router.POST("/albums/", postAlbums)
-	router.Run("0.0.0.0:", os.Getenv("PORT"))
+	router.Run("0.0.0.0:", port)
 }
