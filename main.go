@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
 	"net"
 	"net/http"
 	"os"
-	"log"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -68,7 +70,7 @@ func postAlbums(c *gin.Context) {
 
 // getIP from the source request
 
-func getIP(c *gin.Context) {
+func getMyRemoteIP(c *gin.Context) {
 	ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
 	if err != nil {
 
@@ -90,16 +92,45 @@ func getIP(c *gin.Context) {
 
 }
 
+func getMySourceIP(c *gin.Context) {
+	ip := c.Request.Header.Get("X-REAL-IP")
+	netIP := net.ParseIP(ip)
+    if netIP == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "No Real IPs found"})
+        return
+    }
+
+	c.IndentedJSON(http.StatusOK, ip)
+	
+}
+
+func getMyProxyIPList(c *gin.Context) {
+	ips := c.Request.Header.Get("X-FORWARDED-FOR")
+	splitIps := strings.Split(ips, ",")
+	for _, ip := range splitIps {
+		netIP := net.ParseIP(ip)
+		if netIP == nil {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "No proxy IPs found"})
+			return
+		}
+		c.IndentedJSON(http.StatusOK, ips)
+	}
+}
+
 func main() {
+
+	// cloud build contract mandate us to use "0.0.0.0" address and environment variable for container port
 	port := os.Getenv("PORT")
 	if port == "" {
-			port = "8080"
-			log.Printf("defaulting to port %s", port)
+		port = "8080"
+		log.Printf("defaulting to port %s", port)
 	}
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
 	router.GET("/albums/:id", getAlbumsByID)
-	router.GET("/albums/getMySourceIP", getIP)
+	router.GET("/albums/getMySourceIP", getMySourceIP)
+	router.GET("/albums/getMyProxyIPList", getMyProxyIPList)
+	router.GET("/albums/getMyRemoteIP", getMyRemoteIP)
 	router.POST("/albums/", postAlbums)
 	router.Run("0.0.0.0:" + port)
 }
